@@ -46,12 +46,12 @@
                     append-icon="search"></v-text-field>
             </v-card-title>
 
-                <v-card-text>
-                    <v-data-table
-                        :headers="headers"
-                        :items="items"
-                        :search="search"
-                        per-page="12"
+            <v-card-text>
+                <v-data-table
+                    :headers="headers"
+                    :items="items"
+                    :search="search"
+                    per-page="12"
                     >
                     <template slot="items" slot-scope="props">
                         <td>{{ props.item.id }}</td>
@@ -74,7 +74,6 @@
                     <template slot="no-data">
                         <v-btn color="primary" @click="initialize">Reset</v-btn>
                     </template>
-
                 </v-data-table>
             </v-card-text>
         </v-card>
