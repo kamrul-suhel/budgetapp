@@ -1,7 +1,7 @@
 <template>
     <section class="categories-page">
         <v-dialog v-model="dialog" max-width="500px">
-            <v-btn color="light" slot="activator" raised class="mb-2">New Item</v-btn>
+            <v-btn color="light" slot="activator" raised class="mb-2">Add Category</v-btn>
 
             <v-card>
                 <v-card-title>
@@ -11,24 +11,16 @@
                 <v-card-text>
                     <v-container grid-list-md>
                         <v-layout wrap>
-                            <v-flex xs12 sm6 md4>
-                                <v-text-field label="Dessert name" v-model="editedItem.name"></v-text-field>
+                            <v-flex xs12>
+                                <v-text-field label="Title" v-model="editedItem.name"></v-text-field>
                             </v-flex>
 
-                            <v-flex xs12 sm6 md4>
-                                <v-text-field label="Calories" v-model="editedItem.calories"></v-text-field>
-                            </v-flex>
-
-                            <v-flex xs12 sm6 md4>
-                                <v-text-field label="Fat (g)" v-model="editedItem.fat"></v-text-field>
-                            </v-flex>
-
-                            <v-flex xs12 sm6 md4>
-                                <v-text-field label="Carbs (g)" v-model="editedItem.carbs"></v-text-field>
-                            </v-flex>
-
-                            <v-flex xs12 sm6 md4>
-                                <v-text-field label="Protein (g)" v-model="editedItem.protein"></v-text-field>
+                            <v-flex xs12>
+                                <v-text-field 
+                                    label="Description" 
+                                    v-model="editedItem.description"
+                                    multi-line
+                                    ></v-text-field>
                             </v-flex>
                         </v-layout>
                     </v-container>
@@ -44,74 +36,94 @@
             </v-card>
         </v-dialog>
 
-        <v-data-table
-                :headers="headers"
-                :items="items"
-                hide-actions
-                class="elevation-1"
-        >
-            <template slot="items" slot-scope="props">
-                <td>{{ props.item.name }}</td>
-                <td class="text-xs-right">{{ props.item.calories }}</td>
-                <td class="text-xs-right">{{ props.item.fat }}</td>
-                <td class="text-xs-right">{{ props.item.carbs }}</td>
-                <td class="text-xs-right">{{ props.item.protein }}</td>
-                <td class="justify-center layout px-0">
-                    <v-btn icon class="mx-0" @click="editItem(props.item)">
-                        <v-icon color="teal">edit</v-icon>
-                    </v-btn>
-                    <v-btn icon class="mx-0" @click="deleteItem(props.item)">
-                        <v-icon color="pink">delete</v-icon>
-                    </v-btn>
-                </td>
-            </template>
+        <v-card>
+            <v-card-title>
+                Categories
+                <v-spacer></v-spacer>
+                <v-text-field
+                    hide-details
+                    v-model="search"
+                    append-icon="search"></v-text-field>
+            </v-card-title>
 
-            <template slot="no-data">
-                <v-btn color="primary" @click="initialize">Reset</v-btn>
-            </template>
+                <v-card-text>
+                    <v-data-table
+                        :headers="headers"
+                        :items="items"
+                        :search="search"
+                        per-page="12"
+                    >
+                    <template slot="items" slot-scope="props">
+                        <td>{{ props.item.id }}</td>
+                        <td class="text-xs-left">{{ props.item.name }}</td>
+                        <td class="text-xs-left">{{ props.item.description }}</td>
+                        <td class="justify-start layout px-0">
+                            <v-btn icon class="mx-0" @click="editItem(props.item)">
+                                <v-icon color="primary">edit</v-icon>
+                            </v-btn>
+                            <v-btn icon class="mx-0" @click="deleteItem(props.item)">
+                                <v-icon color="pink">delete</v-icon>
+                            </v-btn>
+                        </td>
+                    </template>
 
-        </v-data-table>
+                    <v-alert slot="no-results" :value="true" color="error" icon="warning">
+                        Your search for "{{ search }}" found no results.
+                    </v-alert>    
+
+                    <template slot="no-data">
+                        <v-btn color="primary" @click="initialize">Reset</v-btn>
+                    </template>
+
+                </v-data-table>
+            </v-card-text>
+        </v-card>
     </section>
 </template>
 
 <script>
+    import axios from 'axios'
     export default {
         data: () => ({
             dialog: false,
+            search:'',
             headers: [
                 {
-                    text: 'Dessert (100g serving)',
+                    text: 'Identifier',
                     align: 'left',
                     sortable: true,
-                    value: 'name'
+                    value: 'id'
                 },
-                { text: 'Calories', value: 'calories' },
-                { text: 'Fat (g)', value: 'fat' },
-                { text: 'Carbs (g)', value: 'carbs' },
-                { text: 'Protein (g)', value: 'protein' },
-                { text: 'Actions', value: 'name', sortable: false }
+                { 
+                    text: 'Title', 
+                    value: 'name',
+                    sortable: true
+                },
+                { 
+                    text: 'Description', 
+                    value: 'description',
+                },
+                {
+                    text: 'Action',
+                    value: 'action'
+                }
             ],
             items: [],
             editedIndex: -1,
             editedItem: {
+                id:'',
                 name: '',
-                calories: 0,
-                fat: 0,
-                carbs: 0,
-                protein: 0
+                description: '',
             },
             defaultItem: {
                 name: '',
-                calories: 0,
-                fat: 0,
-                carbs: 0,
-                protein: 0
+                descriptin: '',
             }
         }),
 
         computed: {
             formTitle () {
-                return this.editedIndex === -1 ? 'New Item' : 'Edit Item'
+                return this.editedIndex === -1 ? 'New Category' : 'Edit Category'
             }
         },
 
@@ -127,78 +139,13 @@
 
         methods: {
             initialize () {
-                this.items = [
-                    {
-                        name: 'Frozen Yogurt',
-                        calories: 159,
-                        fat: 6.0,
-                        carbs: 24,
-                        protein: 4.0
-                    },
-                    {
-                        name: 'Ice cream sandwich',
-                        calories: 237,
-                        fat: 9.0,
-                        carbs: 37,
-                        protein: 4.3
-                    },
-                    {
-                        name: 'Eclair',
-                        calories: 262,
-                        fat: 16.0,
-                        carbs: 23,
-                        protein: 6.0
-                    },
-                    {
-                        name: 'Cupcake',
-                        calories: 305,
-                        fat: 3.7,
-                        carbs: 67,
-                        protein: 4.3
-                    },
-                    {
-                        name: 'Gingerbread',
-                        calories: 356,
-                        fat: 16.0,
-                        carbs: 49,
-                        protein: 3.9
-                    },
-                    {
-                        name: 'Jelly bean',
-                        calories: 375,
-                        fat: 0.0,
-                        carbs: 94,
-                        protein: 0.0
-                    },
-                    {
-                        name: 'Lollipop',
-                        calories: 392,
-                        fat: 0.2,
-                        carbs: 98,
-                        protein: 0
-                    },
-                    {
-                        name: 'Honeycomb',
-                        calories: 408,
-                        fat: 3.2,
-                        carbs: 87,
-                        protein: 6.5
-                    },
-                    {
-                        name: 'Donut',
-                        calories: 452,
-                        fat: 25.0,
-                        carbs: 51,
-                        protein: 4.9
-                    },
-                    {
-                        name: 'KitKat',
-                        calories: 518,
-                        fat: 26.0,
-                        carbs: 65,
-                        protein: 7
-                    }
-                ]
+                axios.get('http://system.test/categories/')
+                .then((response) => {
+                    this.items = response.data;
+                })
+                .catch((error) => {
+                    console.log(error);
+                });
             },
 
             editItem (item) {
@@ -221,12 +168,30 @@
             },
 
             save () {
+                let form = new FormData();
+                let url = 'http://system.test/categories/';
+
+                form.append('name', this.editedItem.name);
+                form.append('description', this.editedItem.description);
+                    
                 if (this.editedIndex > -1) {
-                    Object.assign(this.items[this.editedIndex], this.editedItem)
+                    axios.post(url, form)
+                        .then((response) => {
+                            Object.assign(this.items[this.editedIndex], this.editedItem)
+                            })
+                    .catch((error)=> {
+
+                    });
                 } else {
-                    this.items.push(this.editedItem)
+                    let url = url + this.editedItem.id;
+
+                    axios.post(url, form)
+                    .then((response) => {
+                        this.items.push(response.data);
+                    });
                 }
                 this.close()
+            
             }
         }
     }

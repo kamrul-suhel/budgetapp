@@ -9,9 +9,9 @@ import App from './App'
 import router from './router'
 Vue.use(Vuetify);
 
-Vue.use(axios, VueAxios);
+axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
-Vue.config.productionTip = false
+Vue.config.productionTip = true
 
 /* eslint-disable no-new */
 new Vue({
