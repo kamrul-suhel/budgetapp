@@ -1,34 +1,48 @@
 <template>
 	<div class="products">
-		<v-container grid-list-lg>
+		<v-container grid-list-md>
 			<v-layout row wrap>
 				<v-flex xs12>
 					<h2>Products</h2>
 				</v-flex>
 			</v-layout>
 
+			<v-divider class="mb-3 dark" ></v-divider>
+
 			<v-layout row wrap>
 				<v-flex xs3>
-					<v-card class="color-primary">
+					<v-card flat class="cyan lighten-1 white--text">
 						<v-card-title>Total product</v-card-title>
+						<v-card-text class="pt-0">
+							<h2 class="display-2 white--text text-xs-center"><strong>350</strong></h2>
+						</v-card-text>
 					</v-card>
 				</v-flex>
 
 				<v-flex xs3>
-					<v-card class="color-primary">
+					<v-card flat class="light-blue white--text">
 						<v-card-title>Total product</v-card-title>
+						<v-card-text class="pt-0">
+							<h2 class="display-2 white--text text-xs-center"><strong>350</strong></h2>
+						</v-card-text>
 					</v-card>
 				</v-flex>
 
 				<v-flex xs3>
-					<v-card class="color-primary">
+					<v-card flat class="light-green lighten-1 white--text">
 						<v-card-title>Total product</v-card-title>
+						<v-card-text class="pt-0">
+							<h2 class="display-2 white--text text-xs-center"><strong>350</strong></h2>
+						</v-card-text>
 					</v-card>
 				</v-flex>
 
 				<v-flex xs3>
-					<v-card class="color-primary">
+					<v-card flat class="orange darken-1 white--text">
 						<v-card-title>Total product</v-card-title>
+						<v-card-text class="pt-0">
+							<h2 class="display-2 white--text text-xs-center"><strong>350</strong></h2>
+						</v-card-text>
 					</v-card>
 				</v-flex>
 			</v-layout>
@@ -137,7 +151,7 @@
         			raised
         			width="100%">
 					<v-card-title class="pb-0 pt-0">
-						<v-btn dark fab small color="indigo" @click="dialog = true">
+						<v-btn dark fab small color="dark" @click="dialog = true">
 							<v-icon>add</v-icon>
 						</v-btn>
 
@@ -195,7 +209,7 @@
 		                    </v-alert>    
 
 		                    <template slot="no-data">
-		                        <v-btn color="primary" @click="initialize">Reset</v-btn>
+		                        Sorry no products found
 		                    </template>
 		                </v-data-table>
 					</v-card-text>
@@ -272,19 +286,20 @@
             editedIndex: -1,
             editedItem: {
                 id:'',
-                name: '',
-                description: '',
-                quantity:'',
-                status:'avaliable',
-                sale_price: '',
-                purchase_price: '',
-                quantity_type:'',
+                name: 'New title',
+                description: 'new Description',
+                quantity:'250',
+                status:'available',
+                sale_price: '200',
+                purchase_price: '150',
+                quantity_type:'kg',
             },
-            selectedCategories:[],
 
             quantity_type: [],
 
             categories:[],
+            selectedCategories:[],
+
             defaultItem: {
                 name: '',
                 descriptin: '',
@@ -316,6 +331,7 @@
                 axios.get('http://system.test/products/')
                 .then((response) => {
                     this.items = response.data.products;
+                    console.log(this.items);
                     this.quantity_type = response.data.quantity_types;
                     this.total_product = response.data.total_product;
                     
@@ -381,9 +397,26 @@
 
                 form.append('name', this.editedItem.name);
                 form.append('description', this.editedItem.description);
-                    
-                console.log(this.selectedCategories);
-                return;
+                form.append('purchase_price', this.editedItem.purchase_price);
+                form.append('sale_price', this.editedItem.sale_price);
+                form.append('quantity', this.editedItem.quantity);
+                form.append('status', this.editedItem.status);
+                form.append('quantity_type', this.editedItem.quantity_type);
+
+                if(this.selectedCategories){
+                	form.append('categories', JSON.stringify(this.selectedCategories));
+                }
+
+                if(this.editedIndex != -1){
+
+                }else{
+                	axios.post(url, form)
+                	.then((response)=> {
+                		this.items.push(response.data);
+                	});	
+                }
+
+                
                 this.close()
             
             },

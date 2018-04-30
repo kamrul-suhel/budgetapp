@@ -1,7 +1,7 @@
 <template>
     <section class="categories-page">
         <v-dialog v-model="dialog" max-width="500px">
-            <v-btn color="light" slot="activator" raised class="mb-2">Add Category</v-btn>
+            <v-btn dark color="dark" slot="activator" raised class="mb-2">Add Category</v-btn>
 
             <v-card>
                 <v-card-title>
@@ -111,8 +111,8 @@
             editedIndex: -1,
             editedItem: {
                 id:'',
-                name: '',
-                description: '',
+                name: 'Oil',
+                description: 'New oil',
             },
             defaultItem: {
                 name: '',
@@ -174,16 +174,17 @@
                 form.append('description', this.editedItem.description);
                     
                 if (this.editedIndex > -1) {
+                    form.append('_method', 'PUT');
+                    url = url + this.editedItem.id;
+                
                     axios.post(url, form)
                         .then((response) => {
                             Object.assign(this.items[this.editedIndex], this.editedItem)
-                            })
+                        })
                     .catch((error)=> {
 
                     });
                 } else {
-                    let url = url + this.editedItem.id;
-
                     axios.post(url, form)
                     .then((response) => {
                         this.items.push(response.data);
