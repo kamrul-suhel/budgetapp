@@ -140,7 +140,7 @@
 
                     <v-btn dark color="dark" raised @click.native="close">Cancel</v-btn>
 
-                    <v-btn dark color="dark" raised @click.native="save">Save</v-btn>
+                    <v-btn dark color="dark" raised @click.native="save">{{ editedIndex == -1 ? 'Create product' : 'Update product' }} </v-btn>
                 </v-card-actions>
             </v-card>
         </v-dialog>
@@ -402,20 +402,30 @@
                 form.append('quantity', this.editedItem.quantity);
                 form.append('status', this.editedItem.status);
                 form.append('quantity_type', this.editedItem.quantity_type);
+                console.log(this.selectedCategories);
+                return;
 
                 if(this.selectedCategories){
                 	form.append('categories', JSON.stringify(this.selectedCategories));
                 }
 
                 if(this.editedIndex != -1){
-
+                	//update product
+                	form.append('_method', 'PATCH');
+                	url = url + this.editedItem.id;
+                	axios.post(url, form)
+                		.then((response) => {
+                			console.log(response);
+                		})
+                	
                 }else{
+                	//create product
                 	axios.post(url, form)
                 	.then((response)=> {
                 		this.items.push(response.data);
                 	});	
                 }
-
+                return;
                 
                 this.close()
             
