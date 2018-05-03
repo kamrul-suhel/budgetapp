@@ -402,8 +402,7 @@
                 form.append('quantity', this.editedItem.quantity);
                 form.append('status', this.editedItem.status);
                 form.append('quantity_type', this.editedItem.quantity_type);
-                console.log(this.selectedCategories);
-                return;
+               
 
                 if(this.selectedCategories){
                 	form.append('categories', JSON.stringify(this.selectedCategories));
@@ -415,7 +414,7 @@
                 	url = url + this.editedItem.id;
                 	axios.post(url, form)
                 		.then((response) => {
-                			console.log(response);
+                			Object.assign(this.items[this.editedIndex], response.data)
                 		})
                 	
                 }else{
@@ -425,7 +424,6 @@
                 		this.items.push(response.data);
                 	});	
                 }
-                return;
                 
                 this.close()
             
